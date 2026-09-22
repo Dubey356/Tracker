@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Habit & Daily Goal Tracker</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        /* Custom scrollbar for sleek modern look */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.5); border-radius: 9999px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(156, 163, 175, 0.8); }
+    </style>
+</head>
+<body class="h-full bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors duration-300 flex flex-col">
+
+    <header class="sticky top-0 z-30 backdrop-blur-md bg-white/80 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-800 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-md shadow-indigo-500/20">
+                    <i class="fa-solid fa-bullseye text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold tracking-tight bg-gradient-to-r from-indigo-600 to-violet-500 bg-clip-text text-transparent">HabitPulse</h1>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">Build better habits, achieve daily goals</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <!-- Date Display -->
+                <div id="current-date-display" class="hidden md:flex items-center space-x-2 text-xs font-medium px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                    <i class="fa-regular fa-calendar text-indigo-500"></i>
+                    <span id="date-text"></span>
+                </div>
+                <!-- Theme Toggle Button -->
+                <button id="theme-toggle" aria-label="Toggle theme" class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 transition-colors">
+                    <i id="theme-icon" class="fa-solid fa-moon text-sm"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+        
+        <!-- Stats Grid -->
+        <section class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Stat 1: Completion Rate -->
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm flex items-center space-x-4">
+                <div class="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xl shrink-0">
+                    <i class="fa-solid fa-chart-pie"></i>
+                </div>
+                <div>
+                    <p class="text-xs font-medium text-slate-500 dark:text-slate-400">Completion Rate</p>
+                    <div class="flex items-baseline space-x-1.5">
+                        <span id="stat-completion-rate" class="text-2xl font-bold tracking-tight">0%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stat 2: Completed Today -->
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm flex items-center space-x-4">
+                <div class="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl shrink-0">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+                <div>
+                    <p class="text-xs font-medium text-slate-500 dark:text-slate-400">Done Today</p>
+                    <div class="flex items-baseline space-x-1.5">
+                        <span id="stat-completed-count" class="text-2xl font-bold tracking-tight">0 / 0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stat 3: Best Streak -->
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm flex items-center space-x-4">
+                <div class="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xl shrink-0">
+                    <i class="fa-solid fa-fire"></i>
+                </div>
+                <div>
+                    <p class="text-xs font-medium text-slate-500 dark:text-slate-400">Max Streak</p>
+                    <div class="flex items-baseline space-x-1.5">
+                        <span id="stat-max-streak" class="text-2xl font-bold tracking-tight">0</span>
+                        <span class="text-xs text-slate-400">days</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stat 4: Total Active Habits -->
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm flex items-center space-x-4">
+                <div class="w-12 h-12 rounded-xl bg-violet-50 dark:bg-violet-950/50 text-violet-600 dark:text-violet-400 flex items-center justify-center text-xl shrink-0">
+                    <i class="fa-solid fa-list-check"></i>
+                </div>
+                <div>
+                    <p class="text-xs font-medium text-slate-500 dark:text-slate-400">Total Habits</p>
+                    <div class="flex items-baseline space-x-1.5">
+                        <span id="stat-total-habits" class="text-2xl font-bold tracking-tight">0</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm">
+            <!-- Category Filters -->
+            <div id="category-filters" class="flex flex-wrap items-center gap-2">
+                <button data-category="All" class="category-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-indigo-600 text-white shadow-sm shadow-indigo-500/20 transition-all">
+                    All Habits
+                </button>
+                <button data-category="Health" class="category-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all">
+                    Health
+                </button>
+                <button data-category="Work" class="category-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all">
+                    Work
+                </button>
+                <button data-category="Personal" class="category-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all">
+                    Personal
+                </button>
+                <button data-category="Fitness" class="category-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all">
+                    Fitness
+                </button>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center space-x-3">
+                <button id="open-add-modal" class="w-full md:w-auto px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium text-xs shadow-md shadow-indigo-600/20 flex items-center justify-center space-x-2 transition-all">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Add New Habit</span>
+                </button>
+            </div>
+        </section>
+
+        <section class="space-y-4">
+            <div class="flex items-center justify-between">
+                <h2 id="section-title" class="text-base font-bold text-slate-800 dark:text-slate-100">Today's Habits</h2>
+                <span id="habit-count-badge" class="text-xs font-medium text-slate-500 dark:text-slate-400">0 habits</span>
+            </div>
+
+            <!-- Empty State -->
+            <div id="empty-state" class="hidden flex flex-col items-center justify-center p-12 bg-white dark:bg-slate-900 border border-dashed border-slate-300 dark:border-slate-800 rounded-2xl text-center">
+                <div class="w-16 h-16 rounded-2xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-500 flex items-center justify-center text-2xl mb-4">
+                    <i class="fa-solid fa-clipboard-list"></i>
+                </div>
+                <h3 class="text-sm font-bold text-slate-700 dark:text-slate-200 mb-1">No habits found</h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400 max-w-sm mb-4">Get started by creating your first daily habit or goal to track your streak.</p>
+                <button onclick="openModal()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium rounded-xl transition-all shadow-sm">
+                    Create Habit Now
+                </button>
+            </div>
+
+            <!-- Habit Cards Container -->
+            <div id="habit-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Dynamically populated via JavaScript -->
+            </div>
+        </section>
+
+    </main>
+
+    <div id="habit-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm hidden">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl w-full max-w-md p-6 shadow-2xl space-y-6 transform transition-all scale-95 opacity-0 duration-200" id="modal-content">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 flex items-center justify-center">
+                        <i class="fa-solid fa-square-plus text-lg"></i>
+                    </div>
+                    <h3 class="text-base font-bold text-slate-800 dark:text-slate-100">Create New Habit</h3>
+                </div>
+                <button id="close-modal" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 flex items-center justify-center text-xs transition-colors">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form id="habit-form" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Habit Name</label>
+                    <input type="text" id="habit-name" required placeholder="e.g., Morning Meditation, Read 20 mins" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Category</label>
+                    <select id="habit-category" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="Health">Health</option>
+                        <option value="Work">Work</option>
+                        <option value="Personal">Personal</option>
+                        <option value="Fitness">Fitness</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Icon / Emoji</label>
+                    <select id="habit-icon" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="fa-solid fa-heart-pulse">❤️ Health & Vitality</option>
+                        <option value="fa-solid fa-laptop-code">💻 Work & Coding</option>
+                        <option value="fa-solid fa-book-open">📚 Reading & Study</option>
+                        <option value="fa-solid fa-dumbbell">🏋️ Fitness & Exercise</option>
+                        <option value="fa-solid fa-glass-water">💧 Hydration</option>
+                        <option value="fa-solid fa-brain">🧠 Mindfulness</option>
+                        <option value="fa-solid fa-moon">💤 Sleep & Rest</option>
+                        <option value="fa-solid fa-seedling">🌱 Personal Growth</option>
+                    </select>
+                </div>
+
+                <div class="pt-2 flex items-center justify-end space-x-3">
+                    <button type="button" id="cancel-modal" class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-semibold transition-colors">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-md shadow-indigo-600/20 transition-all">
+                        Save Habit
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-24 opacity-0 transition-all duration-300 bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-4 py-3 rounded-2xl shadow-xl flex items-center space-x-3 text-xs font-medium">
+        <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
+        <span id="toast-message">Action successful</span>
+    </div>
+
+    <script>
+        // State management
+        let habits = [];
+        let currentFilter = 'All';
+
+        // Initialize LocalStorage or sample data
+        function loadHabits() {
+            const stored = localStorage.getItem('habitpulse_habits');
+            if (stored) {
+                try {
+                    habits = JSON.parse(stored);
+                } catch (e) {
+                    habits = [];
+                }
+            } else {
+                // Default sample data for first-time visitors
+                const todayStr = getTodayDateString();
+                habits = [
+                    { id: '1', name: 'Morning Hydration', category: 'Health', icon: 'fa-solid fa-glass-water', streak: 4, bestStreak: 7, history: { [todayStr]: false } },
+                    { id: '2', name: 'Code for 45 mins', category: 'Work', icon: 'fa-solid fa-laptop-code', streak: 12, bestStreak: 15, history: { [todayStr]: true } },
+                    { id: '3', name: 'Read 15 Pages', category: 'Personal', icon: 'fa-solid fa-book-open', streak: 3, bestStreak: 10, history: { [todayStr]: false } },
+                    { id: '4', name: 'Gym / Workout', category: 'Fitness', icon: 'fa-solid fa-dumbbell', streak: 5, bestStreak: 5, history: { [todayStr]: true } }
+                ];
+                saveHabits();
+            }
+        }
+
+        function saveHabits() {
+            localStorage.setItem('habitpulse_habits', JSON.stringify(habits));
+        }
+
+        // Date Helpers
+        function getTodayDateString() {
+            const d = new Date();
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        function formatDisplayDate() {
+            const options = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' };
+            document.getElementById('date-text').textContent = new Date().toLocaleDateString('en-US', options);
+        }
+
+        // Toast notification system (replaces alert)
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const msgEl = document.getElementById('toast-message');
+            const iconEl = document.getElementById('toast-icon');
+
+            msgEl.textContent = message;
+            if (type === 'success') {
+                iconEl.className = 'fa-solid fa-circle-check text-emerald-400 text-sm';
+            } else {
+                iconEl.className = 'fa-solid fa-circle-exclamation text-amber-400 text-sm';
+            }
+
+            toast.classList.remove('translate-y-24', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-24', 'opacity-0');
+            }, 3000);
+        }
+
+        // Render Dashboard Statistics
+        function updateStats() {
+            const total = habits.length;
+            const todayStr = getTodayDateString();
+            
+            let completedToday = 0;
+            let maxStreakAll = 0;
+
+            habits.forEach(h => {
+                if (h.history && h.history[todayStr]) {
+                    completedToday++;
+                }
+                if (h.streak > maxStreakAll) {
+                    maxStreakAll = h.streak;
+                }
+            });
+
+            const completionRate = total > 0 ? Math.round((completedToday / total) * 100) : 0;
+
+            document.getElementById('stat-total-habits').textContent = total;
+            document.getElementById('stat-completed-count').textContent = `${completedToday} / ${total}`;
+            document.getElementById('stat-completion-rate').textContent = `${completionRate}%`;
+            document.getElementById('stat-max-streak').textContent = maxStreakAll;
+        }
+
+        // Render Habit Cards
+        function renderHabits() {
+            const container = document.getElementById('habit-list');
+            const emptyState = document.getElementById('empty-state');
+            const todayStr = getTodayDateString();
+
+            // Filter habits
+            const filtered = habits.filter(h => {
+                if (currentFilter === 'All') return true;
+                return h.category.toLowerCase() === currentFilter.toLowerCase();
+            });
+
+            document.getElementById('habit-count-badge').textContent = `${filtered.length} habits`;
+
+            if (filtered.length === 0) {
+                container.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            container.innerHTML = '';
+
+            filtered.forEach(habit => {
+                const isCompletedToday = habit.history && habit.history[todayStr] === true;
+
+                // Category badge colors
+                let catBadgeClasses = 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300';
+                if (habit.category === 'Health') catBadgeClasses = 'bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400';
+                if (habit.category === 'Work') catBadgeClasses = 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400';
+                if (habit.category === 'Personal') catBadgeClasses = 'bg-violet-50 dark:bg-violet-950/40 text-violet-600 dark:text-violet-400';
+                if (habit.category === 'Fitness') catBadgeClasses = 'bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400';
+
+                const card = document.createElement('div');
+                card.className = `group relative bg-white dark:bg-slate-900 border transition-all duration-200 rounded-2xl p-5 shadow-sm hover:shadow-md flex flex-col justify-between ${
+                    isCompletedToday 
+                        ? 'border-emerald-500/50 dark:border-emerald-500/30 bg-emerald-50/10 dark:bg-emerald-950/10' 
+                        : 'border-slate-200 dark:border-slate-800'
+                }`;
+
+                card.innerHTML = `
+                    <div>
+                        <!-- Header info -->
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 flex items-center justify-center text-base shrink-0">
+                                    <i class="${habit.icon}"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-sm font-bold text-slate-800 dark:text-slate-100 leading-snug">${escapeHtml(habit.name)}</h3>
+                                    <span class="inline-block mt-1 px-2.5 py-0.5 rounded-md text-[10px] font-semibold ${catBadgeClasses}">${habit.category}</span>
+                                </div>
+                            </div>
+                            <!-- Delete button -->
+                            <button onclick="deleteHabit('${habit.id}')" aria-label="Delete habit" class="text-slate-400 hover:text-rose-500 dark:hover:text-rose-400 p-1.5 transition-colors">
+                                <i class="fa-solid fa-trash-can text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 mt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between">
+                        <!-- Streak Display -->
+                        <div class="flex items-center space-x-1.5 text-xs text-slate-500 dark:text-slate-400">
+                            <i class="fa-solid fa-fire text-amber-500"></i>
+                            <span class="font-bold text-slate-700 dark:text-slate-200">${habit.streak || 0}</span>
+                            <span>day streak</span>
+                        </div>
+
+                        <!-- Complete Toggle Checkbox button -->
+                        <button onclick="toggleHabitToday('${habit.id}')" class="flex items-center space-x-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                            isCompletedToday 
+                                ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/20' 
+                                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                        }">
+                            <i class="${isCompletedToday ? 'fa-solid fa-check' : 'fa-regular fa-circle'}"></i>
+                            <span>${isCompletedToday ? 'Completed' : 'Mark Done'}</span>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Toggle Habit Completion for Today
+        function toggleHabitToday(id) {
+            const todayStr = getTodayDateString();
+            const habit = habits.find(h => h.id === id);
+            if (!habit) return;
+
+            if (!habit.history) habit.history = {};
+
+            const wasCompleted = habit.history[todayStr] === true;
+
+            if (wasCompleted) {
+                habit.history[todayStr] = false;
+                habit.streak = Math.max(0, (habit.streak || 1) - 1);
+                showToast(`Marked "${habit.name}" as incomplete`, 'info');
+            } else {
+                habit.history[todayStr] = true;
+                habit.streak = (habit.streak || 0) + 1;
+                if (habit.streak > (habit.bestStreak || 0)) {
+                    habit.bestStreak = habit.streak;
+                }
+                showToast(`Great job! Streak increased for "${habit.name}" 🎉`);
+            }
+
+            saveHabits();
+            updateStats();
+            renderHabits();
+        }
+
+        // Delete Habit
+        function deleteHabit(id) {
+            habits = habits.filter(h => h.id !== id);
+            saveHabits();
+            updateStats();
+            renderHabits();
+            showToast('Habit deleted successfully', 'info');
+        }
+
+        // Modal Controls
+        const modal = document.getElementById('habit-modal');
+        const modalContent = document.getElementById('modal-content');
+
+        function openModal() {
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modalContent.classList.remove('scale-95', 'opacity-0');
+                modalContent.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function closeModal() {
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                document.getElementById('habit-form').reset();
+            }, 200);
+        }
+
+        document.getElementById('open-add-modal').addEventListener('click', openModal);
+        document.getElementById('close-modal').addEventListener('click', closeModal);
+        document.getElementById('cancel-modal').addEventListener('click', closeModal);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+
+        // Add Habit Form Submission
+        document.getElementById('habit-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('habit-name').value.trim();
+            const category = document.getElementById('habit-category').value;
+            const icon = document.getElementById('habit-icon').value;
+
+            if (!name) return;
+
+            const newHabit = {
+                id: '_' + Math.random().toString(36).substr(2, 9),
+                name,
+                category,
+                icon,
+                streak: 0,
+                bestStreak: 0,
+                history: {}
+            };
+
+            habits.push(newHabit);
+            saveHabits();
+            updateStats();
+            renderHabits();
+            closeModal();
+            showToast('New habit created successfully!');
+        });
+
+        // Category Filter Event Listeners
+        const filterButtons = document.querySelectorAll('.category-btn');
+        filterButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterButtons.forEach(b => {
+                    b.className = 'category-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all';
+                });
+                btn.className = 'category-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-indigo-600 text-white shadow-sm shadow-indigo-500/20 transition-all';
+                
+                currentFilter = btn.getAttribute('data-category');
+                renderHabits();
+            });
+        });
+
+        // Theme Toggle Logic
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+
+        function applyTheme(isDark) {
+            if (isDark) {
+                document.documentElement.classList.add('dark');
+                themeIcon.className = 'fa-solid fa-sun text-sm text-amber-400';
+            } else {
+                document.documentElement.classList.remove('dark');
+                themeIcon.className = 'fa-solid fa-moon text-sm text-slate-600';
+            }
+        }
+
+        // Check initial theme preference
+        const savedTheme = localStorage.getItem('habitpulse_theme');
+        if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            applyTheme(true);
+        } else {
+            applyTheme(false);
+        }
+
+        themeToggleBtn.addEventListener('click', () => {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('habitpulse_theme', isDark ? 'dark' : 'light');
+            applyTheme(isDark);
+        });
+
+        // Utility: XSS prevention
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        // Initialize application on load
+        window.onload = function() {
+            formatDisplayDate();
+            loadHabits();
+            updateStats();
+            renderHabits();
+        };
+    </script>
+</body>
+</html>
